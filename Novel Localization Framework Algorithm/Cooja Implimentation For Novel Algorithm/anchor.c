@@ -11,7 +11,6 @@
 #include "dev/cc2420.h"
 #include "dev/cc2420_const.h"
 
-
 #define anchors_num 4
 #define MAX_NEIGHBORS 16
 /* This structure holds information about neighbors. */
@@ -62,7 +61,7 @@ static void broadcast_recv(struct broadcast_conn *c, const rimeaddr_t *from)
 received_data_mote = packetbuf_dataptr();
 
 process_start(&blink_process, NULL);
-/*  Registration of database information in the databases table *///
+/*  Registration of database information in the databases table */
 int i=0; int j=0;
 for(i=0;i<=counter;i++){
 if ((received_data_mote->id==routing_table[i].id)&&(received_data_mote->id!=0)){
@@ -90,7 +89,6 @@ break;
 else if(routing_table[j].id==0){
 routing_table[counter]=*received_data_mote;
 counter++;
-//printf("received_data_mote->hop_count=%d\n",received_data_mote->hop_count );
 process_start(&display_process, NULL);
  received_data_mote->hop_count++;
 process_start(&flooding_process, NULL);
@@ -102,9 +100,8 @@ break;
 
 }
 
-/*************************************************************/
 }
-/**************************************************************************************************/
+
 /*---------------------------------------------------------------------------*/
 static const struct broadcast_callbacks broadcast_call = {broadcast_recv};
 static void recv_uc(struct unicast_conn *c, const rimeaddr_t *from)
@@ -204,10 +201,6 @@ PROCESS_BEGIN();
 
 
 broadcast_open(&broadcast, 129, &broadcast_call);
-
- /*etimer_set(&et1,CLOCK_SECOND*1);
-PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et1));*/
-
 etimer_set(&et1, (CLOCK_SECOND)*1+random_rand() % (CLOCK_SECOND)*1);
 PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et1));
 
