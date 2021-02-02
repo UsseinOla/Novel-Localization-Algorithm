@@ -15,7 +15,6 @@
 
 #define anchors_num 4
 #define MAX_NEIGHBORS 16
-
 /* This structure holds information about neighbors. */
 struct neighbor {
 struct neighbor *next;
@@ -24,18 +23,14 @@ rimeaddr_t addr;
 rimeaddr_t next_hop; uint8_t nbr_hop;
 /* This structure holds information about database. */
 struct database {
-
 uint8_t  id;
 float  x;
 float  y;
 uint8_t  hop_count;
 }database; 
-
 struct database *received_data_mote;
 struct database routing_table[anchors_num];
 int counter=0;
-
-
 
 struct location {
 uint8_t id;
@@ -43,13 +38,9 @@ float x;
 float y;
 } location;
 struct location *received_location, estimated_received_location;
-
 int ids_counter=0;
-
- int dec_x; float frac_x;
-
- int l=0,l1=0;
-
+int dec_x; float frac_x;
+int l=0,l1=0;
 static struct broadcast_conn broadcast;
 static struct unicast_conn unicast;
 
@@ -70,13 +61,10 @@ AUTOSTART_PROCESSES(&broadcast_process, &unicast_process);
 /* This function is called whenever a broadcast message is received. */
 static void broadcast_recv(struct broadcast_conn *c, const rimeaddr_t *from)
 { 
-
 received_data_mote = packetbuf_dataptr();
 process_start(&blink_process, NULL);
 /*  Registration of database information in the databases table */
-int i=0; int j=0; int k=0;
-
-
+int i=0,j=0, k=0;
 for(i=0;i<=counter;i++){
 if ((received_data_mote->id==routing_table[i].id)&&(received_data_mote->id!=0)){
 if( received_data_mote->hop_count < routing_table[i].hop_count ){
@@ -86,15 +74,12 @@ routing_table[i]=*received_data_mote;
 process_start(&display_process, NULL);
  received_data_mote->hop_count++;
 process_start(&flooding_process, NULL); 
-    
 }
 else if(received_data_mote->hop_count >= routing_table[i].hop_count){
 break;
 }
-
 }
-
-
+	
 for (j=0;j<anchors_num;j++){
 if(routing_table[j].id==received_data_mote->id){
 break;
@@ -107,13 +92,8 @@ process_start(&display_process, NULL);
 process_start(&flooding_process, NULL);
 break;
 }
-
 }
 }
-
-
-
-/*************************************************************/
 }
 
 /* This is where we define what function to be called when a broadcast
@@ -144,30 +124,23 @@ PROCESS_END();
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(flooding_process, ev, data)
 {
-
 static struct etimer et1;
-
 PROCESS_EXITHANDLER(broadcast_close(&broadcast);)
 PROCESS_BEGIN();
-
 broadcast_open(&broadcast, 129, &broadcast_call);
-
 etimer_set(&et1, (CLOCK_SECOND)*1+random_rand() % (CLOCK_SECOND)*1);
 PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et1));
 int k=0;
 for(k=0;k<anchors_num;k++){
 if(received_data_mote->id==routing_table[k].id){
-	if(received_data_mote->hop_count==routing_table[k].hop_count){
-		printf("add hop\n");
-		received_data_mote->hop_count++;
-	}
+if(received_data_mote->hop_count==routing_table[k].hop_count){
+printf("add hop\n");
+received_data_mote->hop_count++;
 }
-
+}
 }
 packetbuf_copyfrom(*(&received_data_mote),sizeof(struct database));
 broadcast_send(&broadcast);  
-
-
 if(ids_counter==anchors_num){
 etimer_set(&et1, (CLOCK_SECOND)*2+random_rand() % (CLOCK_SECOND)*2);
 PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et1));   
@@ -194,9 +167,10 @@ unicast_open(&unicast, 146, &unicast_callbacks);
 /****************Calcule Matrix A:(anchors_num-1*2)****************/
 
 int l=0,l1=0;
-int dec_x; float frac_x;
-
- int i,j; float **A;
+int dec_x; 
+float frac_x;
+int i,j; 
+float **A;
 A=(float**)malloc((anchors_num-1)*sizeof(float*));
   for (i=0;i<anchors_num-1;i++)
      A[i]=(float*)malloc(3*sizeof(float));
@@ -212,7 +186,6 @@ A=(float**)malloc((anchors_num-1)*sizeof(float*));
 /***************************calculate avrhopsize based to the function*************************************/
 
 float calcuh(float x){
-
 int acc=25;
 if(x<0){  
 x=(-1)*x;
@@ -225,7 +198,6 @@ ans=ans + temp;
 }   
 return 1/ans;
 }
-
 else{
 float ans=1;
 float temp=1;
@@ -262,13 +234,9 @@ int i=0;
 float cuts1=0,cuts2=0;
 float initial=0;
 float tck1=0,tck2=0;
-
-
 tck1=((-1+h)*sqrt(l)*sqrt(M_PI/3)*R);  
 cuts1=50;
-
 tck2=(h*sqrt(l)*sqrt(M_PI/3)*R);
-
 cuts2=50;
 float  finalanswer = (float)(calcuh((float)((-1)*pow(h,2)*M_PI*l*pow(R,2))/3 ))*(6*sqrt(3)*sqrt(l)*R*(( calcuh((float)(pow((-1+h),2)*l*M_PI*pow(R,2))/3) *(-1+h))+( -h* calcuh((float)(pow(h,2)*l*M_PI*pow(R,2))/3)  )) -9*solve_integral1(initial,tck1,cuts1) *(2/(float)sqrt(M_PI))  +9*((2/(float)sqrt(M_PI))*solve_integral1(initial,tck2,cuts2) )) / (float)(4*sqrt(l)*M_PI*(-1+calcuh((float)((1-2*h)*l*M_PI*pow(R,2))/3)));
 return (float) finalanswer;
@@ -281,12 +249,10 @@ return (float) finalanswer;
   B=(float**)malloc((anchors_num-1)*sizeof(float*));
   for (i=0;i<anchors_num-1;i++)
     B[i]=(float*)malloc(1*sizeof(float));
-  
   for(i=0;i<anchors_num-1;i++)
   {
  *(*(B+i)+0)=pow(gethop(routing_table[i].hop_count),2)-pow(gethop(routing_table[anchors_num-1].hop_count),2)-
  pow(routing_table[i].x,2)+pow(routing_table[anchors_num-1].x,2)-pow(routing_table[i].y,2)+pow(routing_table[anchors_num-1].y,2);
-
   }
 
 /****************Calcule Transpose A: A_T(2*nbr_anc-1)*****************/
@@ -308,28 +274,18 @@ return (float) finalanswer;
  /****************Calcule ATA_AT*B: P(2*1)*****************/
  float **P;        
  P=matrix_multiplication(ATA_AT, 2, anchors_num-1, B, 1);
-
-
 estimated_received_location.id=node_id;
 estimated_received_location.x=*(*(P+0)+0); estimated_received_location.y=*(*(P+1)+0);
-
-
-
 dec_x =*(*(P+0)+0);  frac_x = *(*(P+0)+0) - dec_x; 
 printf("x=%d.%04d ",dec_x,abs((int)(frac_x*10000)));
-
 dec_x =*(*(P+1)+0);  frac_x = *(*(P+1)+0) - dec_x; 
 printf("y=%d.%04d \n",dec_x,abs((int)(frac_x*10000)));
-
 for(i=0;i<anchors_num;i++)
 free(A[i]);
 free(A);
-
-
 for(i=0;i<anchors_num;i++)
 free(B[i]);
 free(B);
-
 free(A_T);
 free(ATA);
 free(ATA_Inv);
