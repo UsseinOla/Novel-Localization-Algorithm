@@ -10,10 +10,9 @@
 #include <math.h>
 #include "dev/cc2420.h"
 #include "dev/cc2420_const.h"
-/****************************/
 #include <stdlib.h>
-#include <string.h> //for free() functions
-/****************************/
+#include <string.h> 
+
 #define anchors_num 4
 #define MAX_NEIGHBORS 16
 
@@ -80,8 +79,6 @@ int i=0; int j=0; int k=0;
 
 for(i=0;i<=counter;i++){
 if ((received_data_mote->id==routing_table[i].id)&&(received_data_mote->id!=0)){
-
-//printf("received_data_mote->hop_count =%d routing_table[i].hop_count=%d\n",received_data_mote->hop_count ,routing_table[i].hop_count);
 if( received_data_mote->hop_count < routing_table[i].hop_count ){
 routing_table[i].hop_count=received_data_mote->hop_count;
 printf("less than\n");
@@ -103,10 +100,8 @@ if(routing_table[j].id==received_data_mote->id){
 break;
 }
 else if(routing_table[j].id==0){
-//	printf("counter=%d\n", counter);
 routing_table[counter]=*received_data_mote;
 counter++;ids_counter++;
-//printf("received_data_mote->hop_count=%d\n",received_data_mote->hop_count );
 process_start(&display_process, NULL);
  received_data_mote->hop_count++;
 process_start(&flooding_process, NULL);
@@ -156,8 +151,6 @@ PROCESS_EXITHANDLER(broadcast_close(&broadcast);)
 PROCESS_BEGIN();
 
 broadcast_open(&broadcast, 129, &broadcast_call);
- /*etimer_set(&et1,CLOCK_SECOND*0.5);
-PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et1));*/
 
 etimer_set(&et1, (CLOCK_SECOND)*1+random_rand() % (CLOCK_SECOND)*1);
 PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et1));
@@ -214,28 +207,6 @@ A=(float**)malloc((anchors_num-1)*sizeof(float*));
     *(*(A+i)+j)=-2*(routing_table[i].x-routing_table[anchors_num-1].x);
   else if (j==1)
     *(*(A+i)+j)=-2*(routing_table[i].y-routing_table[anchors_num-1].y);
-
-
-
-
-/*
-printf("A\n");
-  for(l=0;l<anchors_num-1;l++){
-    for(l1=0;l1<2;l1++){
-dec_x =A[l][l1];  frac_x = A[l][l1] - dec_x; 
-printf("%d.%04d ",dec_x,abs((int)(frac_x*10000)));
-}
-printf("\n");
-  }
-*/
-
-
-
-
-
-
-
-
 
 
 /***************************calculate avrhopsize based to the function*************************************/
@@ -300,9 +271,6 @@ tck2=(h*sqrt(l)*sqrt(M_PI/3)*R);
 
 cuts2=50;
 float  finalanswer = (float)(calcuh((float)((-1)*pow(h,2)*M_PI*l*pow(R,2))/3 ))*(6*sqrt(3)*sqrt(l)*R*(( calcuh((float)(pow((-1+h),2)*l*M_PI*pow(R,2))/3) *(-1+h))+( -h* calcuh((float)(pow(h,2)*l*M_PI*pow(R,2))/3)  )) -9*solve_integral1(initial,tck1,cuts1) *(2/(float)sqrt(M_PI))  +9*((2/(float)sqrt(M_PI))*solve_integral1(initial,tck2,cuts2) )) / (float)(4*sqrt(l)*M_PI*(-1+calcuh((float)((1-2*h)*l*M_PI*pow(R,2))/3)));
-/*dec_x =finalanswer;  frac_x =finalanswer - dec_x; 
-printf("h=%d finalanswer=%d.%04d \n",(int)h,dec_x,abs((int)(frac_x*10000)));*/
-
 return (float) finalanswer;
 }
 
@@ -316,28 +284,10 @@ return (float) finalanswer;
   
   for(i=0;i<anchors_num-1;i++)
   {
-
-//printf(" %d\n",routing_table[i].id);
-
-//float averagehop=pow(gethop(routing_table[i].hop_count),2);
-
- //(averagehop    -pow(routing_table[i].x,2) -pow(routing_table[i].y,2));
  *(*(B+i)+0)=pow(gethop(routing_table[i].hop_count),2)-pow(gethop(routing_table[anchors_num-1].hop_count),2)-
  pow(routing_table[i].x,2)+pow(routing_table[anchors_num-1].x,2)-pow(routing_table[i].y,2)+pow(routing_table[anchors_num-1].y,2);
 
   }
-
-
-
-
-/*printf("B\n");
-  for(l=0;l<anchors_num-1;l++){
-    for(l1=0;l1<1;l1++){
-dec_x =B[l][l1];  frac_x = B[l][l1] - dec_x; 
-printf("%d.%04d ",dec_x,abs((int)(frac_x*10000)));
-}
-printf("\n");
-  }*/
 
 /****************Calcule Transpose A: A_T(2*nbr_anc-1)*****************/
  float **A_T;
@@ -371,15 +321,6 @@ printf("x=%d.%04d ",dec_x,abs((int)(frac_x*10000)));
 dec_x =*(*(P+1)+0);  frac_x = *(*(P+1)+0) - dec_x; 
 printf("y=%d.%04d \n",dec_x,abs((int)(frac_x*10000)));
 
-
-/*
-leds_on(LEDS_GREEN);
-etimer_set(&et1,(CLOCK_SECOND)*(nbr_hop*5)+random_rand() % (CLOCK_SECOND)*nbr_hop);
-PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et1));
-leds_off(LEDS_GREEN);
-packetbuf_copyfrom(&estimated_received_location, sizeof(struct location));
-unicast_send(&unicast, &next_hop);
-*/
 for(i=0;i<anchors_num;i++)
 free(A[i]);
 free(A);
