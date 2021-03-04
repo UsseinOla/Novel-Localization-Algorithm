@@ -14,13 +14,7 @@
 #include <string.h> 
 
 #define anchors_num 4
-#define MAX_NEIGHBORS 16
-/* This structure holds information about neighbors. */
-struct neighbor {
-struct neighbor *next;
-rimeaddr_t addr;
-};
-rimeaddr_t next_hop; uint8_t nbr_hop;
+
 /* This structure holds information about database. */
 struct database {
 uint8_t  id;
@@ -149,14 +143,7 @@ process_start(&trilateral_process, NULL);
 PROCESS_EXIT();
 PROCESS_END();
 }
-/*---------------------------------------------------------------------------*/
-PROCESS_THREAD(unicast_process, ev, data)
-{
-PROCESS_EXITHANDLER(unicast_close(&unicast);)   
-PROCESS_BEGIN();
-unicast_open(&unicast, 146, &unicast_callbacks);
-PROCESS_END();
-}
+
 /*-----------------------------------------------------------------------------------*/
  PROCESS_THREAD(trilateral_process, ev, data)
 {
