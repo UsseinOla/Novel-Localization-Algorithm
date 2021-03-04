@@ -12,13 +12,7 @@
 #include "dev/cc2420_const.h"
 
 #define anchors_num 4
-#define MAX_NEIGHBORS 16
-/* This structure holds information about neighbors. */
-struct neighbor {
-struct neighbor *next;
-rimeaddr_t addr;
-};
-rimeaddr_t next_hop; uint8_t nbr_hop;
+
 
 /* This structure holds information about database. */
 struct database {
